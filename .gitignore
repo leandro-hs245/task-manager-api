@@ -1,0 +1,143 @@
+# ────────────────────────────────────────────
+# Python
+# ────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.pdb
+
+# Distribution / packaging
+.Python
+build/
+dist/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ────────────────────────────────────────────
+# Environment variables
+# ────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ────────────────────────────────────────────
+# FastAPI / Uvicorn
+# ────────────────────────────────────────────
+*.log
+logs/
+
+# ────────────────────────────────────────────
+# Database
+# ────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+
+# Alembic (keep versions folder, ignore cache)
+alembic/__pycache__/
+
+# ────────────────────────────────────────────
+# Docker
+# ────────────────────────────────────────────
+.dockerignore
+
+# ────────────────────────────────────────────
+# Testing & Coverage
+# ────────────────────────────────────────────
+.pytest_cache/
+.cache/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+*.py,cover
+nosetests.xml
+test-results/
+
+# ────────────────────────────────────────────
+# Linters & Formatters
+# ────────────────────────────────────────────
+.flake8_cache/
+.ruff_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ────────────────────────────────────────────
+# IDEs & Editors
+# ────────────────────────────────────────────
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# PyCharm / JetBrains
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim / Neovim
+*.swp
+*.swo
+*~
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ────────────────────────────────────────────
+# Jupyter (just in case)
+# ────────────────────────────────────────────
+.ipynb_checkpoints
+*.ipynb
+
+# ────────────────────────────────────────────
+# Secrets & Certificates
+# ────────────────────────────────────────────
+*.pem
+*.key
+*.cert
+*.crt
+secrets/
