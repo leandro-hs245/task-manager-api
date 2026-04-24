@@ -68,9 +68,7 @@ def _task_to_response(t: TaskOut) -> TaskResponse:
     )
 
 
-@router.post(
-    "", response_model=TaskResponse, status_code=status.HTTP_201_CREATED
-)
+@router.post("", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
 async def create_task(
     list_id: UUID,
     body: TaskCreate,

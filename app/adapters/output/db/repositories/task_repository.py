@@ -67,9 +67,7 @@ class SQLAlchemyTaskRepository(ITaskRepository):
         if priority is not None:
             cond.append(TaskModel.priority == priority.value)
         q = await self._session.execute(
-            select(TaskModel)
-            .where(and_(*cond))
-            .order_by(TaskModel.created_at)
+            select(TaskModel).where(and_(*cond)).order_by(TaskModel.created_at)
         )
         return [self.to_domain(m) for m in q.scalars().all()]
 

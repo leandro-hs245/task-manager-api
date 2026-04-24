@@ -5,9 +5,7 @@ from httpx import AsyncClient
 @pytest.mark.asyncio
 async def test_task_crud_and_filters(test_client: AsyncClient) -> None:
     c = test_client
-    lr = await c.post(
-        "/api/v1/lists", json={"name": "L", "description": None}
-    )
+    lr = await c.post("/api/v1/lists", json={"name": "L", "description": None})
     lid = lr.json()["id"]
     t = await c.post(
         f"/api/v1/lists/{lid}/tasks",
@@ -45,9 +43,7 @@ async def test_invalid_status_transition_422(
     test_client: AsyncClient,
 ) -> None:
     c = test_client
-    lr = await c.post(
-        "/api/v1/lists", json={"name": "L2", "description": None}
-    )
+    lr = await c.post("/api/v1/lists", json={"name": "L2", "description": None})
     lid = lr.json()["id"]
     t = await c.post(
         f"/api/v1/lists/{lid}/tasks",

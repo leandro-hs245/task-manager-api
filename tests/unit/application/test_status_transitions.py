@@ -1,6 +1,7 @@
-import pytest
 from datetime import UTC, datetime
 from uuid import UUID, uuid4
+
+import pytest
 
 from app.application.task.change_task_status import ChangeTaskStatus
 from app.domain.entities.task import Task

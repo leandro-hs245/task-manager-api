@@ -1,5 +1,5 @@
-from app.domain.value_objects.status import TaskStatus
 from app.domain.exceptions.task_list import TaskListNotFoundException
+from app.domain.value_objects.status import TaskStatus
 from app.ports.input.task_list_use_cases import (
     GetTaskListInput,
     GetTaskListOutput,
@@ -33,9 +33,7 @@ class GetTaskList(IGetTaskList):
     async def execute(self, data: GetTaskListInput) -> GetTaskListOutput:
         tl = await self._task_list_repository.find_by_id(data.task_list_id)
         self._require_owner(tl.owner_id, data.requester_id)
-        all_tasks = await self._task_repository.find_all_by_list_id(
-            tl.id, None, None
-        )
+        all_tasks = await self._task_repository.find_all_by_list_id(tl.id, None, None)
         pct = self._completion_percentage(all_tasks)
         return GetTaskListOutput(
             id=tl.id,

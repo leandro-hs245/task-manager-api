@@ -1,6 +1,7 @@
-import pytest
 from datetime import UTC, datetime
 from uuid import uuid4
+
+import pytest
 
 from app.application.task.create_task import CreateTask
 from app.domain.entities.task_list import TaskList

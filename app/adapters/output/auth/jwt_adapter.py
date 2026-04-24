@@ -24,18 +24,14 @@ class JWTAdapter(IAuthPort):
             "sub": str(user_id),
             "exp": expire,
         }
-        return jwt.encode(
-            payload, self._secret, algorithm=self._algorithm
-        )
+        return jwt.encode(payload, self._secret, algorithm=self._algorithm)
 
     def verify_token(self, token: str) -> UUID:
         if not self._secret:
             msg = "SECRET_KEY is not set"
             raise RuntimeError(msg)
         try:
-            payload = jwt.decode(
-                token, self._secret, algorithms=[self._algorithm]
-            )
+            payload = jwt.decode(token, self._secret, algorithms=[self._algorithm])
             sub = payload.get("sub")
             if not sub:
                 raise InvalidCredentialsException("Invalid token")

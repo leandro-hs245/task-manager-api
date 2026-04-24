@@ -49,12 +49,8 @@ async def login(
     body: UserLogin,
     session: AsyncSession = Depends(get_db),
 ) -> TokenResponse:
-    use_case = LoginUser(
-        SQLAlchemyUserRepository(session), JWTAdapter()
-    )
+    use_case = LoginUser(SQLAlchemyUserRepository(session), JWTAdapter())
     out = await use_case.execute(
         LoginUserInput(email=body.email, password=body.password)
     )
-    return TokenResponse(
-        access_token=out.access_token, token_type=out.token_type
-    )
+    return TokenResponse(access_token=out.access_token, token_type=out.token_type)

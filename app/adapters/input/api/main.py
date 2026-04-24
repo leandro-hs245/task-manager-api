@@ -88,9 +88,7 @@ def create_app() -> FastAPI:
         )
 
     @app.exception_handler(TaskListNotFoundException)
-    def _not_found_list(
-        _: Request, exc: TaskListNotFoundException
-    ) -> JSONResponse:
+    def _not_found_list(_: Request, exc: TaskListNotFoundException) -> JSONResponse:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={"detail": exc.message},
@@ -118,9 +116,7 @@ def create_app() -> FastAPI:
         )
 
     @app.exception_handler(UserAlreadyExistsException)
-    def _conflict_user(
-        _: Request, exc: UserAlreadyExistsException
-    ) -> JSONResponse:
+    def _conflict_user(_: Request, exc: UserAlreadyExistsException) -> JSONResponse:
         return JSONResponse(
             status_code=status.HTTP_409_CONFLICT,
             content={"detail": exc.message},

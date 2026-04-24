@@ -3,9 +3,7 @@ from app.ports.input.task_use_cases import TaskOut
 from app.ports.output.email_port import NotificationResult
 
 
-def task_to_out(
-    task: Task, notification: NotificationResult | None = None
-) -> TaskOut:
+def task_to_out(task: Task, notification: NotificationResult | None = None) -> TaskOut:
     return TaskOut(
         id=task.id,
         title=task.title,

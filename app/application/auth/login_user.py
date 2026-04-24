@@ -1,4 +1,5 @@
 from passlib.context import CryptContext
+
 from app.domain.exceptions.user import (
     InvalidCredentialsException,
     UserNotFoundException,
@@ -11,9 +12,7 @@ _pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class LoginUser(ILoginUser):
-    def __init__(
-        self, user_repository: IUserRepository, auth_port: IAuthPort
-    ) -> None:
+    def __init__(self, user_repository: IUserRepository, auth_port: IAuthPort) -> None:
         self._user_repository = user_repository
         self._auth_port = auth_port
 

@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
 
+from app.application.task._mappers import task_to_out
 from app.domain.exceptions.task import (
     InvalidTaskStatusTransitionException,
     TaskNotFoundException,
@@ -13,9 +14,6 @@ from app.ports.input.task_use_cases import (
 )
 from app.ports.output.task_list_repository import ITaskListRepository
 from app.ports.output.task_repository import ITaskRepository
-
-from app.application.task._mappers import task_to_out
-
 
 _VALID_TRANSITIONS: dict[TaskStatus, set[TaskStatus]] = {
     TaskStatus.PENDING: {TaskStatus.IN_PROGRESS},
@@ -34,21 +32,15 @@ class ChangeTaskStatus(IChangeTaskStatus):
         self._task_list_repository = task_list_repository
 
     @staticmethod
-    def _assert_transition(
-        current: TaskStatus, new: TaskStatus
-    ) -> None:
+    def _assert_transition(current: TaskStatus, new: TaskStatus) -> None:
         allowed = _VALID_TRANSITIONS.get(current, set())
         if new not in allowed:
             raise InvalidTaskStatusTransitionException(
                 f"Cannot transition from {current.value} to {new.value}"
             )
 
-    async def execute(
-        self, data: ChangeTaskStatusInput
-    ) -> ChangeTaskStatusOutput:
-        task_list = await self._task_list_repository.find_by_id(
-            data.task_list_id
-        )
+    async def execute(self, data: ChangeTaskStatusInput) -> ChangeTaskStatusOutput:
+        task_list = await self._task_list_repository.find_by_id(data.task_list_id)
         if task_list.owner_id != data.requester_id:
             raise TaskListNotFoundException("Task list not found")
         task = await self._task_repository.find_by_id(data.task_id)

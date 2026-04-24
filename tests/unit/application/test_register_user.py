@@ -11,9 +11,7 @@ async def test_register_success() -> None:
     ur = InMemoryUserRepository()
     uc = RegisterUser(ur)
     out = await uc.execute(
-        RegisterUserInput(
-            email="new@x.com", full_name="N", password="password123"
-        )
+        RegisterUserInput(email="new@x.com", full_name="N", password="password123")
     )
     assert out.email == "new@x.com"
     u = await ur.find_by_email("new@x.com")
@@ -24,14 +22,8 @@ async def test_register_success() -> None:
 async def test_register_duplicate() -> None:
     ur = InMemoryUserRepository()
     uc = RegisterUser(ur)
-    await uc.execute(
-        RegisterUserInput(
-            email="d@x.com", full_name="A", password="p"
-        )
-    )
+    await uc.execute(RegisterUserInput(email="d@x.com", full_name="A", password="p"))
     with pytest.raises(UserAlreadyExistsException):
         await uc.execute(
-            RegisterUserInput(
-                email="d@x.com", full_name="B", password="p2"
-            )
+            RegisterUserInput(email="d@x.com", full_name="B", password="p2")
         )

@@ -1,5 +1,6 @@
-from app.domain.value_objects.status import TaskStatus
+from app.application.task._mappers import task_to_out
 from app.domain.exceptions.task_list import TaskListNotFoundException
+from app.domain.value_objects.status import TaskStatus
 from app.ports.input.task_use_cases import (
     IListTasksByList,
     ListTasksByListInput,
@@ -7,8 +8,6 @@ from app.ports.input.task_use_cases import (
 )
 from app.ports.output.task_list_repository import ITaskListRepository
 from app.ports.output.task_repository import ITaskRepository
-
-from app.application.task._mappers import task_to_out
 
 
 class ListTasksByList(IListTasksByList):
@@ -28,12 +27,8 @@ class ListTasksByList(IListTasksByList):
         done = sum(1 for t in tasks if t.status == TaskStatus.DONE)
         return (done / total) * 100.0
 
-    async def execute(
-        self, data: ListTasksByListInput
-    ) -> ListTasksByListOutput:
-        task_list = await self._task_list_repository.find_by_id(
-            data.task_list_id
-        )
+    async def execute(self, data: ListTasksByListInput) -> ListTasksByListOutput:
+        task_list = await self._task_list_repository.find_by_id(data.task_list_id)
         if task_list.owner_id != data.requester_id:
             raise TaskListNotFoundException("Task list not found")
         all_for_list = await self._task_repository.find_all_by_list_id(

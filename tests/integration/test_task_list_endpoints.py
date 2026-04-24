@@ -5,9 +5,7 @@ from httpx import AsyncClient
 @pytest.mark.asyncio
 async def test_list_crud(test_client: AsyncClient) -> None:
     c = test_client
-    r = await c.post(
-        "/api/v1/lists", json={"name": "My list", "description": "d"}
-    )
+    r = await c.post("/api/v1/lists", json={"name": "My list", "description": "d"})
     assert r.status_code == 201
     list_id = r.json()["id"]
     g = await c.get(f"/api/v1/lists/{list_id}")
@@ -39,7 +37,5 @@ async def test_get_missing_list_404(
 ) -> None:
     import uuid
 
-    r = await test_client.get(
-        f"/api/v1/lists/{uuid.uuid4()}"
-    )
+    r = await test_client.get(f"/api/v1/lists/{uuid.uuid4()}")
     assert r.status_code == 404

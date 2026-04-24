@@ -35,9 +35,7 @@ class TaskModel(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    task_list: Mapped[Any] = relationship(
-        "TaskListModel", back_populates="tasks"
-    )
+    task_list: Mapped[Any] = relationship("TaskListModel", back_populates="tasks")
     assignee: Mapped[Any] = relationship(
         "UserModel", back_populates="tasks_assigned", foreign_keys=[assigned_user_id]
     )

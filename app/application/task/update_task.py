@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
 
+from app.application.task._mappers import task_to_out
 from app.domain.exceptions.task import TaskNotFoundException
 from app.domain.exceptions.task_list import TaskListNotFoundException
 from app.ports.input.task_use_cases import (
@@ -9,8 +10,6 @@ from app.ports.input.task_use_cases import (
 )
 from app.ports.output.task_list_repository import ITaskListRepository
 from app.ports.output.task_repository import ITaskRepository
-
-from app.application.task._mappers import task_to_out
 
 
 class UpdateTask(IUpdateTask):

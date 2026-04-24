@@ -9,9 +9,7 @@ async def test_completion_50(
     test_client: AsyncClient,
 ) -> None:
     c = test_client
-    lr = await c.post(
-        "/api/v1/lists", json={"name": "C", "description": None}
-    )
+    lr = await c.post("/api/v1/lists", json={"name": "C", "description": None})
     lid = lr.json()["id"]
     for _i, st in enumerate(
         [

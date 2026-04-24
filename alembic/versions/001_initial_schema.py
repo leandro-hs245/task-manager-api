@@ -5,9 +5,11 @@ Revises:
 Create Date: 2026-01-01
 
 """
+
 from collections.abc import Sequence
 
 import sqlalchemy as sa
+
 from alembic import op
 
 revision: str = "001_initial"
@@ -23,7 +25,12 @@ def upgrade() -> None:
         sa.Column("email", sa.String(255), nullable=False),
         sa.Column("full_name", sa.String(255), nullable=False),
         sa.Column("hashed_password", sa.String(255), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=True,
+        ),
     )
     op.create_index("ix_users_email", "users", ["email"], unique=True)
 
@@ -33,8 +40,18 @@ def upgrade() -> None:
         sa.Column("name", sa.String(255), nullable=False),
         sa.Column("description", sa.Text(), nullable=True),
         sa.Column("owner_id", sa.Uuid(as_uuid=True), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=True,
+        ),
+        sa.Column(
+            "updated_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=True,
+        ),
         sa.ForeignKeyConstraint(["owner_id"], ["users.id"], ondelete="CASCADE"),
     )
     op.create_index("ix_task_lists_owner_id", "task_lists", ["owner_id"], unique=False)
@@ -48,10 +65,24 @@ def upgrade() -> None:
         sa.Column("priority", sa.String(32), nullable=False),
         sa.Column("task_list_id", sa.Uuid(as_uuid=True), nullable=False),
         sa.Column("assigned_user_id", sa.Uuid(as_uuid=True), nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=True),
-        sa.ForeignKeyConstraint(["task_list_id"], ["task_lists.id"], ondelete="CASCADE"),
-        sa.ForeignKeyConstraint(["assigned_user_id"], ["users.id"], ondelete="SET NULL"),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=True,
+        ),
+        sa.Column(
+            "updated_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.text("now()"),
+            nullable=True,
+        ),
+        sa.ForeignKeyConstraint(
+            ["task_list_id"], ["task_lists.id"], ondelete="CASCADE"
+        ),
+        sa.ForeignKeyConstraint(
+            ["assigned_user_id"], ["users.id"], ondelete="SET NULL"
+        ),
     )
     op.create_index("ix_tasks_task_list_id", "tasks", ["task_list_id"], unique=False)
 

@@ -2,6 +2,7 @@ from datetime import UTC, datetime
 from uuid import uuid4
 
 from passlib.context import CryptContext
+
 from app.domain.entities.user import User
 from app.domain.exceptions.user import (
     UserAlreadyExistsException,

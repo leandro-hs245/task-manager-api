@@ -1,6 +1,7 @@
 from datetime import UTC, datetime
 from uuid import uuid4
 
+from app.application.task._mappers import task_to_out
 from app.domain.entities.task import Task
 from app.domain.exceptions.task_list import TaskListNotFoundException
 from app.domain.exceptions.user import UserNotFoundException
@@ -13,8 +14,6 @@ from app.ports.output.email_port import IEmailPort
 from app.ports.output.task_list_repository import ITaskListRepository
 from app.ports.output.task_repository import ITaskRepository
 from app.ports.output.user_repository import IUserRepository
-
-from app.application.task._mappers import task_to_out
 
 
 class CreateTask(ICreateTask):
@@ -50,15 +49,11 @@ class CreateTask(ICreateTask):
         notification = None
         if data.assigned_user_id is not None:
             try:
-                assignee = await self._user_repository.find_by_id(
-                    data.assigned_user_id
-                )
+                assignee = await self._user_repository.find_by_id(data.assigned_user_id)
             except UserNotFoundException as e:
                 raise UserNotFoundException("Assigned user not found") from e
             try:
-                requester = await self._user_repository.find_by_id(
-                    data.requester_id
-                )
+                requester = await self._user_repository.find_by_id(data.requester_id)
             except UserNotFoundException as e:
                 raise UserNotFoundException("Requester not found") from e
             notification = self._email_port.send_invitation_sync(

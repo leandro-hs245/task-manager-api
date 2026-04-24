@@ -2,10 +2,11 @@ import os
 import sys
 from logging.config import fileConfig
 
-from alembic import context
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, pool
 from sqlalchemy.engine import Connection
+
+from alembic import context
 
 load_dotenv()
 
