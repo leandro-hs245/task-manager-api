@@ -1,0 +1,2 @@
+"""Authentication contract (output port)."""
+

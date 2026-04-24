@@ -1,0 +1,28 @@
+# API
+fastapi[standard]
+uvicorn[standard]
+
+# Database
+sqlalchemy[asyncio]
+asyncpg
+alembic
+
+# Auth
+python-jose[cryptography]
+passlib[bcrypt]
+
+# Config
+python-dotenv
+pydantic-settings
+
+# Testing
+pytest
+pytest-asyncio
+pytest-cov
+httpx
+aiosqlite
+
+# Linting & formatting
+black
+isort
+flake8
