@@ -62,7 +62,7 @@ Coverage is configured in `pytest.ini` with `pytest-cov` and **`--cov-fail-under
 
 ## Git hooks (pre-commit)
 
-The repo includes [`.pre-commit-config.yaml`](.pre-commit-config.yaml): on **`git commit`** it runs **Black**, **isort**, and **Flake8** (settings from [`pyproject.toml`](pyproject.toml) and [`.flake8`](.flake8)). On **`git push`** it runs **`python -m pytest`**, so [`pytest.ini`](pytest.ini) applies (including coverage and the 75% threshold).
+The repo includes [`.pre-commit-config.yaml`](.pre-commit-config.yaml): on **`git commit`** it runs **Black**, **isort**, and **Flake8** (settings from [`pyproject.toml`](pyproject.toml) and [`.flake8`](.flake8)). On **`git push`** it runs **`python -m pytest -v`**, so [`pytest.ini`](pytest.ini) applies (including coverage and the 75% threshold). The hook sets **`verbose: true`** so pre-commit still prints the full pytest output on success (by default it would only show a one-line “Passed” summary).
 
 **One-time setup** (use a venv with project dependencies so `python` in the hook has `pytest` and friends):
 

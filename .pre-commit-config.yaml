@@ -36,6 +36,8 @@ repos:
         name: pytest (with coverage, pytest.ini)
         entry: python -m pytest
         args: [-v]
+        # Show pytest output on success (pre-commit hides hook stdout otherwise)
+        verbose: true
         language: system
         pass_filenames: false
         always_run: true
