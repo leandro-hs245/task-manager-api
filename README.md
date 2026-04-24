@@ -60,6 +60,29 @@ pytest
 
 Coverage is configured in `pytest.ini` with `pytest-cov` and **`--cov-fail-under=75`**. The suite includes unit tests (fakes) and async integration tests (HTTPX + ASGI) with a shared SQLite in-memory engine for speed.
 
+## Git hooks (pre-commit)
+
+The repo includes [`.pre-commit-config.yaml`](.pre-commit-config.yaml): on **`git commit`** it runs **Black**, **isort**, and **Flake8** (settings from [`pyproject.toml`](pyproject.toml) and [`.flake8`](.flake8)). On **`git push`** it runs **`python -m pytest`**, so [`pytest.ini`](pytest.ini) applies (including coverage and the 75% threshold).
+
+**One-time setup** (use a venv with project dependencies so `python` in the hook has `pytest` and friends):
+
+```bash
+source .venv/bin/activate
+pip install -r requirements.txt
+pre-commit install
+```
+
+`default_install_hook_types` is set to `[pre-commit, pre-push]`, so a single `pre-commit install` registers both. If you ever install hooks manually: `pre-commit install --hook-type pre-commit` and `pre-commit install --hook-type pre-push`.
+
+**Dry run** (optional):
+
+```bash
+pre-commit run --all-files
+pre-commit run --hook-stage pre-push --all-files
+```
+
+**Note:** If you commit from a GUI that does not use your venv, `python` may not find `pytest` for the push hook. Prefer committing from a terminal with `.venv` activated, or add your venv’s `bin` to `PATH` in that environment.
+
 ## Environment variables
 
 | Variable | Purpose |

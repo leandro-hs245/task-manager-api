@@ -1,0 +1,41 @@
+# default_install_hook_types: one `pre-commit install` registers pre-commit and pre-push
+default_install_hook_types: [pre-commit, pre-push]
+
+default_language_version:
+  python: python3.12
+
+repos:
+  - repo: https://github.com/psf/black
+    rev: 24.10.0
+    hooks:
+      - id: black
+        types_or: [python, pyi]
+        language_version: python3.12
+        stages: [pre-commit]
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: [--settings-path, pyproject.toml]
+        types_or: [python, pyi]
+        language_version: python3.12
+        stages: [pre-commit]
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.1.1
+    hooks:
+      - id: flake8
+        language_version: python3.12
+        args: [--config, .flake8]
+        stages: [pre-commit]
+
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest (with coverage, pytest.ini)
+        entry: python -m pytest
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
