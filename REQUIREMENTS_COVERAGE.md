@@ -33,7 +33,7 @@ This file maps the original take-home requirements to what exists in the reposit
 | List tasks with `status` / `priority` filters and completion % | [app/application/task/list_tasks.py](app/application/task/list_tasks.py), integration: [tests/integration/test_completion_percentage.py](tests/integration/test_completion_percentage.py) |
 | **Bonus: JWT, protected routes** | [app/adapters/output/auth/jwt_adapter.py](app/adapters/output/auth/jwt_adapter.py), [app/adapters/input/api/v1/routers/auth_router.py](app/adapters/input/api/v1/routers/auth_router.py), [app/adapters/input/api/v1/dependencies/auth.py](app/adapters/input/api/v1/dependencies/auth.py) |
 | **Bonus: assign user to a task** | [app/adapters/output/db/models/task.py](app/adapters/output/db/models/task.py) `assigned_user_id`, [app/application/task/create_task.py](app/application/task/create_task.py) (and update flow) |
-| **Bonus: fake email / invitation** | Port [app/ports/output/email_port.py](app/ports/output/email_port.py), adapter [app/adapters/output/email/fake_email_adapter.py](app/adapters/output/email/fake_email_adapter.py) |
+| **Bonus: fake email / invitation** | Port [app/ports/output/email_port.py](app/ports/output/email_port.py), adapter [app/adapters/output/email/fake_email_adapter.py](app/adapters/output/email/fake_email_adapter.py). **When it runs:** only on **create task** if `assigned_user_id` is set; see [DECISION_LOG.md](DECISION_LOG.md) (section *Fake email adapter*). |
 
 ### 2. Project structure and quality (layers, Pydantic, errors, tests)
 

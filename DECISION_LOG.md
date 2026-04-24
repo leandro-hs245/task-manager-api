@@ -104,8 +104,16 @@ A task can optionally reference `users.id` as **assignee** on `tasks.assigned_us
 
 The `IEmailPort` contract has two methods.
 
-- **Synchronous** `send_invitation_sync` returns a `NotificationResult` so the use case can attach a concrete payload to the HTTP response when a task is created with an assignee (the challenge requires simulating an invitation without sending real email).
-- **Asynchronous** `send_invitation_async` returns `None` and is used for a **fire-and-forget** path; the fake implementation only logs, so you can show both code paths without a mail server.
+**When the app triggers the emulated email (sync path only)**
+
+- The production flow calls **only** `send_invitation_sync`. That happens in [app/application/task/create_task.py](app/application/task/create_task.py) **after** the new task is persisted, and **only if** the request body included a non-null `assigned_user_id`. If there is no assignee, no port method runs and the API response has `notification: null`.
+- The HTTP path wires [app/adapters/output/email/fake_email_adapter.py](app/adapters/output/email/fake_email_adapter.py) for `CreateTask` only; updating a task, changing status, auth, and other endpoints do not send the fake email.
+- `send_invitation_async` is not called from any module in `app/` today. It is part of the port and implemented in the fake adapter (for example to log a fire-and-forget case), but no use case or router invokes it, so the async path is unused in live requests.
+
+**What each method does on the port**
+
+- **Synchronous** `send_invitation_sync` returns a `NotificationResult` so the use case can attach a payload to the JSON response (simulated invitation, no real SMTP).
+- **Asynchronous** `send_invitation_async` is defined to return `None` for a fire-and-forget style; the fake implementation only uses the `logging` module, but as noted it has no current caller in application code.
 
 The adapter lives in infrastructure, so a future real implementation can keep the same port and swap behavior.
 
