@@ -1,5 +1,8 @@
 # Task Manager API
 
+> [!NOTE]
+> **Start here (requirements checklist):** open [**REQUIREMENTS_COVERAGE.md**](REQUIREMENTS_COVERAGE.md) in parallel with this README. It maps the take-home to paths in the repo, what is implemented, and what is out of scope, so that checklist is easy to find.
+
 REST API for task lists and tasks, built for a backend technical challenge. The service implements CRUD for lists and tasks, status rules, optional task assignment, simulated email notifications, and JWT-protected routes. The stack is **Python 3.12**, **FastAPI**, **PostgreSQL** (via **asyncpg**), **SQLAlchemy 2.0** (async), **Alembic**, **Pydantic**, **pytest**, and **Docker**.
 
 ## Project description
@@ -167,6 +170,6 @@ Authenticated routes expect `Authorization: Bearer <access_token>`. Domain error
 
 ## Further reading
 
-Technical trade-offs and rationale are recorded in [DECISION_LOG.md](DECISION_LOG.md).
-
-A Postman collection for all challenge use cases (variables: `baseUrl`, `accessToken`, plus scripts for `registerEmail`, `userId`, `listId`, `taskId`) is in [postman/Task-Manager-API.postman_collection.json](postman/Task-Manager-API.postman_collection.json). Import it in Postman or Insomnia (as a collection import if supported).
+- **Take-home requirements vs. tree:** [REQUIREMENTS_COVERAGE.md](REQUIREMENTS_COVERAGE.md) (see also the callout under the title).
+- **Decisions and diagrams:** [DECISION_LOG.md](DECISION_LOG.md) (hexagonal design, ERD, tooling).
+- **Postman (all use cases; variables: `baseUrl`, `accessToken`, scripts for `registerEmail`, `userId`, `listId`, `taskId`):** [postman/Task-Manager-API.postman_collection.json](postman/Task-Manager-API.postman_collection.json) (import in Postman; similar clients may import it as supported).
