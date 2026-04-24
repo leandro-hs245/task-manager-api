@@ -1,70 +1,123 @@
 # Task Manager API
 
-REST API for managing task lists and tasks, with optional assignment, email simulation, and JWT-based authentication. Built as a technical challenge in **Python 3.12** with **FastAPI**, **PostgreSQL (async)**, **SQLAlchemy 2.0**, **pytest**, and **Docker**.
+REST API for task lists and tasks, built for a backend technical challenge. The service implements CRUD for lists and tasks, status rules, optional task assignment, simulated email notifications, and JWT-protected routes. The stack is **Python 3.12**, **FastAPI**, **PostgreSQL** (via **asyncpg**), **SQLAlchemy 2.0** (async), **Alembic**, **Pydantic**, **pytest**, and **Docker**.
 
-## Features
+## Project description
 
-- **Task lists** — create, list (owner-scoped), get, update, and delete; each list exposes a **completion percentage** (done / total for all tasks in the list).
-- **Tasks** — create, list (with optional `status` and `priority` query filters), get, update, delete, and **PATCH** status with validated transitions: `pending` → `in_progress` → `done` or `in_progress` → `pending`.
-- **Users & auth** — register, login, JWT bearer tokens, protected list/task routes.
-- **Assignment** — assign a user to a task; **synchronous** fake “email” returns a `notification` object on create; **async** fake path is logging-only.
-- **Quality** — `flake8`, `black`, `isort`, pytest with **75%+** line coverage, Alembic migrations, multi-stage **Docker** image, **docker-compose** with PostgreSQL 16 and health checks.
+The API allows authenticated users to manage their own task lists and the tasks within each list. A list summary can include a **completion percentage** (ratio of tasks in the `done` state to the total number of tasks in that list, expressed as a percentage; empty lists report `0.0%`). Tasks support filtering by `status` and `priority` when listing, and status changes follow explicit transitions validated in the domain layer.
 
-## Architecture (hexagonal / ports & adapters)
+**Implemented scope (challenge alignment):**
 
-- **Domain** — entities, value objects (`TaskStatus`, `TaskPriority`), and `BaseDomainException` and subclasses. No framework imports.
-- **Application** — use cases (task list, task, auth) depend only on **port** interfaces and the domain; UUIDs and timestamps are created in use cases for writes.
-- **Ports** — **input** (use case + Pydantic DTOs) and **output** (repositories, `IEmailPort`, `IAuthPort`); implemented by adapters.
-- **Adapters** — **driving** FastAPI under `app/adapters/input/api/`, **driven** async SQLAlchemy repositories, `FakeEmailAdapter`, `JWTAdapter` under `app/adapters/output/`.
+| Area | What is included |
+|------|------------------|
+| Core | CRUD for task lists; CRUD for tasks under a list; change task status with validated transitions; list tasks with optional filters and completion metadata |
+| Optional / bonus | JWT auth (register, login, Bearer protection on list/task routes); assign a user to a task; fake email port (sync returns a notification payload, async only logs) |
+| Quality | Hexagonal layout (domain, application, ports, adapters), custom domain exceptions, `flake8` + `black` + `isort`, `pytest` with at least 75% line coverage on `app/`, `pytest.ini`, multistage `Dockerfile`, `docker-compose` with PostgreSQL, pre-commit hooks (linters on commit, tests on push) |
+
+## Architecture
+
+The codebase follows **hexagonal (ports and adapters) / clean architecture** guidelines from the challenge:
+
+- **Domain**: entities, value objects (`TaskStatus`, `TaskPriority`), and `BaseDomainException` and subclasses. No web framework, ORM, or Pydantic imports in the domain.
+- **Application**: use cases for task lists, tasks, and auth. They depend on port interfaces and the domain only. Identifiers and timestamps for writes are created in use cases as required by the spec.
+- **Ports**: **input** ports express use case contracts with Pydantic DTOs; **output** ports define `ITaskRepository`, `ITaskListRepository`, `IUserRepository`, `IEmailPort`, and `IAuthPort`.
+- **Adapters**: **driving** adapter is FastAPI (routers, dependencies, Pydantic API schemas) under `app/adapters/input/api/`. **Driven** adapters include async SQLAlchemy repositories, `FakeEmailAdapter`, and `JWTAdapter` under `app/adapters/output/`.
+
+Repository layout: `app/domain`, `app/application`, `app/ports`, `app/adapters`, and `tests/unit` and `tests/integration`.
 
 ## Prerequisites
 
-- **Python 3.12** (the project is tested on 3.12; 3.14+ may need dependency wheels adjusted).
-- **Docker** and **Docker Compose** (recommended for PostgreSQL; local Postgres also works).
-- (Optional) **flake8** / **black** / **isort** in your venv for lint/format.
+- **Python 3.12** (the project is tested on 3.12; other versions may need dependency pins reviewed).
+- **Docker** and **Docker Compose** plugin (`docker compose`) to run the full stack without a local PostgreSQL install.
+- A local **PostgreSQL** instance is optional if you run the API and Alembic on the host instead of in Docker.
 
-## Local setup
+## Local environment setup
 
-```bash
-python3.12 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-# Set DATABASE_URL to a running Postgres, e.g.:
-#   postgresql+asyncpg://USER:PASS@localhost:5432/DBNAME
-# Set SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, and Postgres vars to match
-export $(grep -v '^#' .env | xargs)  # or use direnv
-alembic upgrade head
-uvicorn app.adapters.input.api.main:app --reload --host 0.0.0.0 --port 8000
-```
+1. **Clone** the repository and open a shell at the project root.
 
-- API base: `http://127.0.0.1:8000` — OpenAPI docs: `/docs` (FastAPI may mount these at root).
+2. **Virtual environment and dependencies**
 
-## Docker
+   ```bash
+   python3.12 -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
 
-```bash
-cp .env.example .env
-# In .env, set POSTGRES_*, and ensure DATABASE_URL for the *api* service is overridden by
-#   compose (see docker-compose.yml) to postgresql+asyncpg://...@db:5432/...
-docker compose up --build
-```
+3. **Configuration**
 
-The `api` service runs `alembic upgrade head` then `uvicorn` on port `8000`. The `db` service uses a named volume and a health check so the API starts after PostgreSQL is ready.
+   ```bash
+   cp .env.example .env
+   ```
+
+   Edit `.env` and set at least `DATABASE_URL` (pointing to your local PostgreSQL, for example `postgresql+asyncpg://USER:PASS@localhost:5432/DBNAME`), the `POSTGRES_*` fields if you use them for your own setup, and `SECRET_KEY` (and optionally `ALGORITHM`, `ACCESS_TOKEN_EXPIRE_MINUTES`, `CORS_ALLOW_ORIGINS`). The application reads configuration from the environment (see [Environment variables](#environment-variables)).
+
+4. **Migrations and run**
+
+   Load env vars in your shell if needed (or use a tool like `direnv`):
+
+   ```bash
+   set -a && source .env && set +a
+   # or: export $(grep -v '^#' .env | xargs)
+   alembic upgrade head
+   uvicorn app.adapters.input.api.main:app --reload --host 0.0.0.0 --port 8000
+   ```
+
+- Base URL: `http://127.0.0.1:8000`  
+- Interactive API docs: `http://127.0.0.1:8000/docs` (Swagger UI)  
+- OpenAPI JSON: `http://127.0.0.1:8000/openapi.json`
+
+## Running the application in Docker
+
+1. **Prepare `.env`**
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Set `POSTGRES_USER`, `POSTGRES_PASSWORD`, and `POSTGRES_DB` (and a strong `SECRET_KEY`). The Compose file [docker-compose.yml](docker-compose.yml) **overrides** `DATABASE_URL` for the `api` service to use the `db` service hostname, so the API points at the bundled PostgreSQL. You do not need to hand-edit that URL for Docker in normal use.
+
+2. **Start**
+
+   ```bash
+   docker compose up --build
+   ```
+
+- The `db` service is **postgres:16-alpine** with a named volume and a health check.
+- The `api` service waits for the database to be healthy, runs `alembic upgrade head`, then runs Uvicorn on `0.0.0.0:8000`.
+- Map `8000:8000` so you can open `http://localhost:8000/docs` on the host.
+
+3. **Stop**
+
+   - Foreground: `Ctrl+C`  
+- Detached: `docker compose down` (add `-v` to remove the Postgres volume and wipe data)
 
 ## Tests
+
+**Run tests (with the same options as in CI and pre-commit push hook):**
 
 ```bash
 source .venv/bin/activate
 pytest
 ```
 
-Coverage is configured in `pytest.ini` with `pytest-cov` and **`--cov-fail-under=75`**. The suite includes unit tests (fakes) and async integration tests (HTTPX + ASGI) with a shared SQLite in-memory engine for speed.
+- Configuration lives in [pytest.ini](pytest.ini): `testpaths = tests`, `pythonpath = .`, `asyncio_mode = auto`, `asyncio_default_fixture_loop_scope = function`, and `addopts` with `--cov=app --cov-report=term-missing --cov-fail-under=75`.  
+- **Unit** tests use in-memory fakes. **Integration** tests call the app via `httpx` and an in-memory **SQLite** engine with **aiosqlite** (see [tests/conftest.py](tests/conftest.py)).  
+- To see verbose test names: `pytest -v`
+
+## Linting and formatting
+
+- **Linter**: [Flake8](.flake8), max line length 88, ignores E203 and W503 (compatibility with Black).  
+- **Formatters**: [Black](pyproject.toml) and [isort](pyproject.toml) (`profile = "black"`, line length 88).  
+- Run manually: `flake8 app`, `black .`, `isort .` (or rely on pre-commit, below).
 
 ## Git hooks (pre-commit)
 
-The repo includes [`.pre-commit-config.yaml`](.pre-commit-config.yaml): on **`git commit`** it runs **Black**, **isort**, and **Flake8** (settings from [`pyproject.toml`](pyproject.toml) and [`.flake8`](.flake8)). On **`git push`** it runs **`python -m pytest -v`**, so [`pytest.ini`](pytest.ini) applies (including coverage and the 75% threshold). The hook sets **`verbose: true`** so pre-commit still prints the full pytest output on success (by default it would only show a one-line “Passed” summary).
+The file [.pre-commit-config.yaml](.pre-commit-config.yaml) is configured with:
 
-**One-time setup** (use a venv with project dependencies so `python` in the hook has `pytest` and friends):
+- **On `git commit`**: Black, isort, and Flake8.  
+- **On `git push`**: `python -m pytest -v` with `verbose: true` on the hook so you see full pytest and coverage output (pre-commit usually hides success output without this).  
+
+**Setup (once, with a venv that has project dependencies):**
 
 ```bash
 source .venv/bin/activate
@@ -72,38 +125,46 @@ pip install -r requirements.txt
 pre-commit install
 ```
 
-`default_install_hook_types` is set to `[pre-commit, pre-push]`, so a single `pre-commit install` registers both. If you ever install hooks manually: `pre-commit install --hook-type pre-commit` and `pre-commit install --hook-type pre-push`.
+`default_install_hook_types` includes `pre-commit` and `pre-push`, so a single `pre-commit install` registers both hook types. Dry run: `pre-commit run --all-files` and `pre-commit run --hook-stage pre-push --all-files`.
 
-**Dry run** (optional):
-
-```bash
-pre-commit run --all-files
-pre-commit run --hook-stage pre-push --all-files
-```
-
-**Note:** If you commit from a GUI that does not use your venv, `python` may not find `pytest` for the push hook. Prefer committing from a terminal with `.venv` activated, or add your venv’s `bin` to `PATH` in that environment.
+If you commit from a GUI that does not inherit your venv, ensure `python` on `PATH` can import `pytest` and the app, or use a terminal with `.venv` activated.
 
 ## Environment variables
 
-| Variable | Purpose |
-|----------|--------|
-| `DATABASE_URL` | Async URL, e.g. `postgresql+asyncpg://user:pass@host:5432/db` |
-| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_HOST`, `POSTGRES_PORT` | Used by `docker-compose` and documented for local/dev parity |
-| `SECRET_KEY` | HMAC key for JWT signing (required in production) |
-| `ALGORITHM` | JWT algorithm (default `HS256`) |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | Token lifetime |
-| `CORS_ALLOW_ORIGINS` | Comma-separated list or `*` (default `*`) |
-| `SQLALCHEMY_ECHO` | Set to `true` to log SQL (optional) |
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_URL` | Async SQLAlchemy URL, e.g. `postgresql+asyncpg://user:pass@host:5432/db`. Overridden in Docker Compose for the `api` service. |
+| `POSTGRES_USER` | PostgreSQL user (used by Compose for the `db` service and interpolated for `DATABASE_URL` in compose). |
+| `POSTGRES_PASSWORD` | PostgreSQL password. |
+| `POSTGRES_DB` | Database name. |
+| `POSTGRES_HOST` | Documented for local tools; the app in Docker does not use this to build the URL. |
+| `POSTGRES_PORT` | Documented for local tools. |
+| `SECRET_KEY` | HMAC key for signing JWTs (set a long random value in all non-local deployments). |
+| `ALGORITHM` | JWT algorithm (default `HS256`). |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | Access token lifetime. |
+| `CORS_ALLOW_ORIGINS` | Comma-separated list or `*`. |
+| `SQLALCHEMY_ECHO` | Set to `true` to log SQL (optional, debugging). |
 
-## API summary (prefix `/api/v1`)
+## API overview (base path `/api/v1`)
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| POST | `/auth/register` | no | Create user (201) |
-| POST | `/auth/login` | no | Return JWT (200) |
-| GET/POST/GET/PUT/DELETE | `/lists` … | yes | List CRUD, list index returns per-list completion % |
-| GET/POST/GET/PUT/DELETE | `/lists/{id}/tasks` … | yes | Task CRUD; `GET` returns `{ tasks, completion_percentage }` |
-| PATCH | `/lists/{id}/tasks/{id}/status` | yes | Change status with business rules (422 on invalid) |
+| POST | `/auth/register` | no | Create user. Returns 201. |
+| POST | `/auth/login` | no | Return access token. Returns 200. |
+| POST | `/lists` | yes | Create task list. |
+| GET | `/lists` | yes | List current user's task lists (with per-list completion percentage). |
+| GET | `/lists/{list_id}` | yes | Get one list. |
+| PUT | `/lists/{list_id}` | yes | Update a list. |
+| DELETE | `/lists/{list_id}` | yes | Delete a list. 204. |
+| POST | `/lists/{list_id}/tasks` | yes | Create task. Optional `assigned_user_id` and fake email notification in response. |
+| GET | `/lists/{list_id}/tasks` | yes | List tasks. Query: `status`, `priority` (optional). Returns JSON with `tasks` and `completion_percentage`. |
+| GET | `/lists/{list_id}/tasks/{task_id}` | yes | Get one task. |
+| PUT | `/lists/{list_id}/tasks/{task_id}` | yes | Update task. |
+| DELETE | `/lists/{list_id}/tasks/{task_id}` | yes | Delete task. 204. |
+| PATCH | `/lists/{list_id}/tasks/{task_id}/status` | yes | Change status (422 on invalid transition). |
 
-All protected routes expect `Authorization: Bearer <token>`.
+Authenticated routes expect `Authorization: Bearer <access_token>`. Domain errors are mapped to HTTP status codes in [app/adapters/input/api/main.py](app/adapters/input/api/main.py) with a JSON body `{ "detail": "..." }`.
 
+## Further reading
+
+Technical trade-offs and rationale are recorded in [DECISION_LOG.md](DECISION_LOG.md).
