@@ -1,2 +1,1 @@
 """Get task use case."""
-

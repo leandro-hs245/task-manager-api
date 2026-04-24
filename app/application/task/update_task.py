@@ -1,2 +1,1 @@
 """Update task use case."""
-

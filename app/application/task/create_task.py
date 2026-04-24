@@ -1,2 +1,1 @@
 """Create task use case."""
-
