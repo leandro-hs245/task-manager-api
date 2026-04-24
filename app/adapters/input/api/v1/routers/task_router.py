@@ -16,12 +16,8 @@ from app.adapters.input.api.v1.schemas.task import (
 from app.adapters.output.db.repositories.task_list_repository import (
     SQLAlchemyTaskListRepository,
 )
-from app.adapters.output.db.repositories.task_repository import (
-    SQLAlchemyTaskRepository,
-)
-from app.adapters.output.db.repositories.user_repository import (
-    SQLAlchemyUserRepository,
-)
+from app.adapters.output.db.repositories.task_repository import SQLAlchemyTaskRepository
+from app.adapters.output.db.repositories.user_repository import SQLAlchemyUserRepository
 from app.adapters.output.db.session import get_db
 from app.adapters.output.email.fake_email_adapter import FakeEmailAdapter
 from app.application.task.change_task_status import ChangeTaskStatus

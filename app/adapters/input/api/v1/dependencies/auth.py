@@ -3,9 +3,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.adapters.output.auth.jwt_adapter import JWTAdapter
-from app.adapters.output.db.repositories.user_repository import (
-    SQLAlchemyUserRepository,
-)
+from app.adapters.output.db.repositories.user_repository import SQLAlchemyUserRepository
 from app.adapters.output.db.session import get_db
 from app.domain.entities.user import User
 from app.domain.exceptions.user import (

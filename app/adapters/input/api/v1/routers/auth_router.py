@@ -8,9 +8,7 @@ from app.adapters.input.api.v1.schemas.user import (
     UserResponse,
 )
 from app.adapters.output.auth.jwt_adapter import JWTAdapter
-from app.adapters.output.db.repositories.user_repository import (
-    SQLAlchemyUserRepository,
-)
+from app.adapters.output.db.repositories.user_repository import SQLAlchemyUserRepository
 from app.adapters.output.db.session import get_db
 from app.application.auth.login_user import LoginUser
 from app.application.auth.register_user import RegisterUser

@@ -4,10 +4,7 @@ from uuid import uuid4
 from passlib.context import CryptContext
 
 from app.domain.entities.user import User
-from app.domain.exceptions.user import (
-    UserAlreadyExistsException,
-    UserNotFoundException,
-)
+from app.domain.exceptions.user import UserAlreadyExistsException, UserNotFoundException
 from app.ports.input.auth_use_cases import (
     IRegisterUser,
     RegisterUserInput,

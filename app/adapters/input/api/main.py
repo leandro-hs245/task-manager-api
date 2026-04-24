@@ -8,11 +8,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.adapters.input.api.v1.routers import (
-    auth_router,
-    task_list_router,
-    task_router,
-)
+from app.adapters.input.api.v1.routers import auth_router, task_list_router, task_router
 from app.adapters.output.db.session import get_engine
 from app.domain.exceptions.base import BaseDomainException
 from app.domain.exceptions.task import (

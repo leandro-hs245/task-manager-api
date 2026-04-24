@@ -13,9 +13,7 @@ from app.adapters.input.api.v1.schemas.task_list import (
 from app.adapters.output.db.repositories.task_list_repository import (
     SQLAlchemyTaskListRepository,
 )
-from app.adapters.output.db.repositories.task_repository import (
-    SQLAlchemyTaskRepository,
-)
+from app.adapters.output.db.repositories.task_repository import SQLAlchemyTaskRepository
 from app.adapters.output.db.session import get_db
 from app.application.task_list.create_task_list import CreateTaskList
 from app.application.task_list.delete_task_list import DeleteTaskList

@@ -1,8 +1,5 @@
 from app.domain.exceptions.task_list import TaskListNotFoundException
-from app.ports.input.task_list_use_cases import (
-    DeleteTaskListInput,
-    IDeleteTaskList,
-)
+from app.ports.input.task_list_use_cases import DeleteTaskListInput, IDeleteTaskList
 from app.ports.output.task_list_repository import ITaskListRepository
 
 
