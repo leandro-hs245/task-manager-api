@@ -1,0 +1,524 @@
+{
+  "info": {
+    "name": "Task Manager API",
+    "description": "Challenge use cases. Set **baseUrl** (e.g. `http://127.0.0.1:8000` or `http://localhost:8000`).\n\n**accessToken** is the JWT. Paste it into collection variables, or run **Register** then **Login** (Register saves `registerEmail` and `userId`; Login saves `accessToken`).\n\n**listId** and **taskId** are set by test scripts on Create list / Create task, or paste UUIDs manually.\n\n**Cleanup** (delete list) is last so Collection Runner does not remove the list before task requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "registerEmail",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "listId",
+      "value": ""
+    },
+    {
+      "key": "taskId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const j = pm.response.json();",
+                  "  if (j.id) { pm.collectionVariables.set('userId', j.id); }",
+                  "  if (j.email) { pm.collectionVariables.set('registerEmail', j.email); }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user-{{$randomInt}}@example.com\",\n  \"full_name\": \"Postman User\",\n  \"password\": \"secret123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/register",
+            "description": "Optional bonus: JWT prerequisite. Test script stores **userId** for assignee demo."
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const j = pm.response.json();",
+                  "  if (j.access_token) {",
+                  "    pm.collectionVariables.set('accessToken', j.access_token);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{registerEmail}}\",\n  \"password\": \"secret123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/auth/login",
+            "description": "Uses **registerEmail** from Register response. If you only paste a token and skip Register, set **registerEmail** manually. Test script saves **accessToken**."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Task lists (basic use case i)",
+      "item": [
+        {
+          "name": "Create task list",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const j = pm.response.json();",
+                  "  if (j.id) { pm.collectionVariables.set('listId', j.id); }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{accessToken}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My list\",\n  \"description\": \"From Postman\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/lists"
+          },
+          "response": []
+        },
+        {
+          "name": "List all task lists",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{accessToken}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/lists"
+          },
+          "response": []
+        },
+        {
+          "name": "Get one task list",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{accessToken}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/lists/{{listId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Update task list",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{accessToken}}", "type": "string" }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My list (updated)\",\n  \"description\": \"New description\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/lists/{{listId}}"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tasks (basic ii, iv)",
+      "item": [
+        {
+          "name": "Create task (default status pending)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const j = pm.response.json();",
+                  "  if (j.id) { pm.collectionVariables.set('taskId', j.id); }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{accessToken}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"First task\",\n  \"description\": null,\n  \"priority\": \"medium\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/lists/{{listId}}/tasks"
+          },
+          "response": []
+        },
+        {
+          "name": "Create second task (for completion % and filters)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{accessToken}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Second task\",\n  \"description\": null,\n  \"priority\": \"high\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/lists/{{listId}}/tasks"
+          },
+          "response": []
+        },
+        {
+          "name": "List tasks (all, includes completion_percentage)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{accessToken}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/lists/{{listId}}/tasks",
+            "description": "Response: **tasks** array and **completion_percentage** (use case 1.iv)."
+          },
+          "response": []
+        },
+        {
+          "name": "List tasks filter by status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{accessToken}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/lists/{{listId}}/tasks?status=pending"
+          },
+          "response": []
+        },
+        {
+          "name": "List tasks filter by priority",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{accessToken}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/lists/{{listId}}/tasks?priority=high"
+          },
+          "response": []
+        },
+        {
+          "name": "Get one task",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{accessToken}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/lists/{{listId}}/tasks/{{taskId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Update task",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{accessToken}}", "type": "string" }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"First task (renamed)\",\n  \"description\": \"Updated from Postman\",\n  \"priority\": \"low\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/lists/{{listId}}/tasks/{{taskId}}"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete task",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{accessToken}}", "type": "string" }
+              ]
+            },
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/lists/{{listId}}/tasks/{{taskId}}",
+            "description": "Returns 204."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Task status (basic iii)",
+      "item": [
+        {
+          "name": "Create task for status flow",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const j = pm.response.json();",
+                  "  if (j.id) { pm.collectionVariables.set('taskId', j.id); }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{accessToken}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Status flow task\",\n  \"priority\": \"low\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/lists/{{listId}}/tasks"
+          },
+          "response": []
+        },
+        {
+          "name": "Change status: pending to in_progress",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{accessToken}}", "type": "string" }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"new_status\": \"in_progress\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/lists/{{listId}}/tasks/{{taskId}}/status"
+          },
+          "response": []
+        },
+        {
+          "name": "Change status: in_progress to done",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{accessToken}}", "type": "string" }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"new_status\": \"done\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/lists/{{listId}}/tasks/{{taskId}}/status"
+          },
+          "response": []
+        },
+        {
+          "name": "Change status: invalid (expect 422)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{accessToken}}", "type": "string" }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"new_status\": \"pending\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/lists/{{listId}}/tasks/{{taskId}}/status",
+            "description": "From **done** back to **pending** is not allowed. Expect 422 (run after the task is **done**)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Bonus (b): assign + fake email",
+      "item": [
+        {
+          "name": "Create task with assignee (self) and notification",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.collectionVariables.get('userId')) {",
+                  "  console.warn('Set userId (run Register) or paste your user UUID in collection variables.');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const j = pm.response.json();",
+                  "  if (j.id) { pm.collectionVariables.set('taskId', j.id); }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{accessToken}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Assigned task\",\n  \"priority\": \"high\",\n  \"assigned_user_id\": \"{{userId}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/lists/{{listId}}/tasks",
+            "description": "Use case **b.iii** and **b.iv**: requires **userId** (set by Register or manually). Check response **notification** for fake invitation payload."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cleanup (optional)",
+      "item": [
+        {
+          "name": "Delete task list",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{accessToken}}", "type": "string" }
+              ]
+            },
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/lists/{{listId}}",
+            "description": "Returns 204. Run only when finished testing tasks; it deletes the list and its tasks (CASCADE)."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

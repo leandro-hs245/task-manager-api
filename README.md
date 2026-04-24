@@ -168,3 +168,5 @@ Authenticated routes expect `Authorization: Bearer <access_token>`. Domain error
 ## Further reading
 
 Technical trade-offs and rationale are recorded in [DECISION_LOG.md](DECISION_LOG.md).
+
+A Postman collection for all challenge use cases (variables: `baseUrl`, `accessToken`, plus scripts for `registerEmail`, `userId`, `listId`, `taskId`) is in [postman/Task-Manager-API.postman_collection.json](postman/Task-Manager-API.postman_collection.json). Import it in Postman or Insomnia (as a collection import if supported).
